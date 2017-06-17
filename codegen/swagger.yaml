@@ -11,7 +11,7 @@ basePath: /v1
 produces:
   - application/json
 paths:
-  /cues:
+  /widgets:
     get:
       summary: Widgets
       description: The widgets endpoint returns cues for a given user
@@ -32,12 +32,24 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+    post:
+      summary: Widgets
+      description: creates a new widget
+      parameters:
+        - name: widget
+          in: body
+          schema:
+            $ref: '#/definitions/Widget'
+      responses:
+        '200':
+          description: A widget object
+
 definitions:
   Widget:
     type: object
     properties:
       id:
-        type: integer
+        type: number
         description: the unique identifier of a widget
       stock_number:
         type: string
@@ -51,10 +63,3 @@ definitions:
       project_id:
         type: integer
         description: The id of the Project containing the cue
-  Error:
-    type: object
-    properties:
-      code:
-        type: integer
-      message:
-        type: string

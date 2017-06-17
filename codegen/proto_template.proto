@@ -1,21 +1,63 @@
 syntax = "proto3";
 package {{ packagename }}
-{% for definition in parsed.definitions %}
-{% set properties=parsed.definitions[definition].properties %}
+{# rpcs #}
+{% for definition in parsed.definitions -%}
+{# TODO: Parents #}
+rpc List{{definition}}s(List{{definition}}sRequest) returns (List{{definition}}sResponse) {
+  option (google.api.http) = {
+    get: "{{parsed.basePath}}/{{definition|lower}}s"
+  };
+}
+
+rpc Get{{definition}}(Get{{definition}}Request) returns ({{definition}}) {
+  option (google.api.http) = {
+    get: "{{parsed.basePath}}/{{'{'+definition|lower}}s/*}"
+  };
+}
+
+rpc Create{{definition}}(Create{{definition}}Request) returns ({{definition}}) {
+  option (google.api.http) = {
+    post: "{{parsed.basePath}}/{{definition|lower}}s"
+    body: "{{definition|lower}}"
+  };
+}
+
+rpc Update{{definition}}(Update{{definition}}Request) returns ({{definition}}) {
+  option (google.api.http) = {
+    patch: "{{parsed.basePath}}/{{'{'+definition|lower}}s/*}"
+    body: "{{definition|lower}}"
+  };
+}
+
+rpc Delete{{definition}}(Delete{{definition}}Request) returns (google.protobuf.Empty) {
+  option (google.api.http) = {
+    delete: "{{parsed.basePath}}/{{'{'+definition|lower}}s/*}"
+  };
+}
+{% endfor -%}
+{# messages #}
+{% for definition in parsed.definitions -%}
+{% set properties=parsed.definitions[definition].properties -%}
 message {{definition}} {
   {% for property in properties -%}
-    {% set p = properties[property] -%}
-        {{p.format if p.format else p.type}} {{property}} = {{loop.index}};
-  {% endfor %}
+  {% set p = properties[property] -%}
+  {{p.format if p.format else p.type}} {{property}} = {{loop.index}};
+  {% endfor -%}
 }
 {% endfor %}
 {% for resource_name, resource in parsed.paths.items() -%}
 {% for verb in resource.supported_operations -%}
-message {{ [resource_name[:-1]|title, verbs[verb], 'Request']|join('') }} {
+{% set operations = verbs[verb] -%}
+{% for operation in operations -%}
+
+message {{ [operation.verb, resource_name[:-1]|title , 's' if operation.plural, 'Request']|join('') }} {
+  string latch = 1;
   {% for parameter in resource[verb.value].parameters -%}
   {% set p = parameter -%}
-      {{p.format if p.format else p.type}} {{p.name}} = {{loop.index}};
-  {% endfor %}
+      {{p.format if p.format else p.type}} {{p.name}} = {{loop.index + 1}};
+  {% endfor -%}
 }
+
+{% endfor %}
 {% endfor %}
 {% endfor %}

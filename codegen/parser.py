@@ -54,20 +54,7 @@ class Operation:
     remapped = {OperationFields(k): kwargs[k] for k in kwargs}
     self.responses = Responses(remapped.pop(OperationFields.RESPONSES))
     self.__dict__.update({k.value: remapped[k] for k in remapped})
-    self.paramters = [Parameter(**p) for p in self.parameters]
-
-    # TODO more elegantly handle unspecified formats
-    '''
-    if self.type == "integer" and self.format is None:
-      self.format = "int64"
-
-    if self.type =="array":
-      try:
-        self.items = definition.pop(DefinitionFields.ITEMS)
-      except KeyError:
-        raise ValueError("Array definitions must have accompanying item")
-      self.format = "repeated"
-    '''
+    self.parameters = [Parameter(**p) for p in self.parameters]
 
 class Responses:
 
@@ -109,8 +96,8 @@ class Property:
 
     # TODO more elegantly handle unspecified formats
     if self.format is None:
-      self.format = "int64" if self.type is "integer"\
-               else "float" if self.type is "number"\
+      self.format = "int64" if self.type == "integer"\
+               else "float" if self.type == "number"\
                else None
     if self.type =="array":
       try:
@@ -123,11 +110,22 @@ class Property:
 class Parameter(Property):
   def __init__(self, *args, **kwargs):
     self.name = kwargs.pop(ParameterFields.NAME.value)
-    self.in_type = kwargs.pop(ParameterFields.IN.value)
+    self.in_type = ParameterInTypes(kwargs.pop(ParameterFields.IN.value))
     remapped = _remap(kwargs, ParameterFields)
-    if ParameterFields.BODY not in remapped:
+    if self.in_type is not ParameterInTypes.BODY:
       remapped = _remap(kwargs, DefinitionFields)
       super().__init__(remapped)
+    else:
+      self.schema = remapped.pop(ParameterFields.SCHEMA)
+      if REFERENCE in self.schema:
+        path = self.schema.get(REFERENCE).split('/')
+        # TODO - somehow we might want to traverse back to definitions to assert
+        # existence of the referent object?
+        self.format = path[-1]
+      else:
+        # TODO - figure out how to get non-referencing schemas working
+        raise NotImplementedError
+
 
 def _remap(dict_like, enumeration):
   return {enumeration(k): dict_like[k] for k in dict_like}

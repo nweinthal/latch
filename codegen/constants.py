@@ -1,4 +1,6 @@
 from enum import Enum
+from collections import namedtuple
+
 """
 CURRENT FOR OpenAPI Spec 2.0
 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md
@@ -50,13 +52,18 @@ PATH_ITEM_OPERATIONS = {
     PathItemFields.PATCH
 }
 
+ApiOperation = namedtuple('ApiOperation', ['verb', 'plural'])
+
 OPERATION_CRUD_VERBS = {
-    PathItemFields.GET: "Get",
-    PathItemFields.POST: "Create",
-    PathItemFields.PUT: "Create",
-    PathItemFields.PATCH: "Update",
-    PathItemFields.DELETE: "Delete",
+    PathItemFields.GET: {
+      ApiOperation('Get', False),
+      ApiOperation('List', True)
+    },
+    PathItemFields.POST: {ApiOperation("Create", False)},
+    PathItemFields.PATCH: {ApiOperation("Update", False)},
+    PathItemFields.DELETE: {ApiOperation("Delete", False)}
 }
+
 
 class OperationFields(Enum):
   TAGS = 'tags'
@@ -72,11 +79,13 @@ class OperationFields(Enum):
   DEPRECATED = 'deprecated'
   SECURITY = 'security'
 
+
 class ResponseFields(Enum):
   DESCRIPTION = 'description'
   SCHEMA = 'schema'
   HEADERS = 'headers'
   EXAMPLES = 'examples'
+
 
 class DefinitionFields(Enum):
   FORMAT = 'format'
@@ -106,6 +115,7 @@ class DefinitionFields(Enum):
   XML = 'xml'
   EXTERNAL_DOCS = 'externalDocs'
   EXAMPLE = 'example'
+
 
 class ParameterFields(Enum):
   ADDITIONAL_PROPERTIES = 'additionalProperties'
@@ -140,6 +150,10 @@ class ParameterFields(Enum):
   UNIQUE_ITEMS = 'uniqueItems'
   XML = 'xml'
 
+class ParameterInTypes(Enum):
+  BODY = 'body'
+  QUERY = 'query'
+
 SWAGGER_TYPES = {
     "integer": int,
     "number": float,
@@ -154,3 +168,6 @@ PROTOBUF_FORMATS = {
     "double": "double",
     "byte": "bytes",
 }
+
+# Globally Available
+REFERENCE = '$ref'
