@@ -1,8 +1,0 @@
-paths:
-    foo:
-        get:
-            id: "yus"
-        post:
-            id: "yus_post"
-
-

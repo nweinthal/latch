@@ -1,6 +1,6 @@
 import yaml
 
-from constants import *
+from .constants import *
 from jsonschema import validate
 
 class Swagger:
