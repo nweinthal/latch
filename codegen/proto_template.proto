@@ -1,0 +1,21 @@
+syntax = "proto3";
+package {{ packagename }}
+{% for definition in parsed.definitions %}
+{% set properties=parsed.definitions[definition].properties %}
+message {{definition}} {
+  {% for property in properties -%}
+    {% set p = properties[property] -%}
+        {{p.format if p.format else p.type}} {{property}} = {{loop.index}};
+  {% endfor %}
+}
+{% endfor %}
+{% for resource_name, resource in parsed.paths.items() -%}
+{% for verb in resource.supported_operations -%}
+message {{ [resource_name[:-1]|title, verbs[verb], 'Request']|join('') }} {
+  {% for parameter in resource[verb.value].parameters -%}
+  {% set p = parameter -%}
+      {{p.format if p.format else p.type}} {{p.name}} = {{loop.index}};
+  {% endfor %}
+}
+{% endfor %}
+{% endfor %}
