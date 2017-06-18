@@ -1,42 +1,5 @@
 syntax = "proto3";
 package {{ packagename }};
-{# rpcs #}
-{% for definition in parsed.definitions -%}
-{# TODO: Parents #}
-service Gateway {
-  rpc List{{definition}}s(List{{definition}}sRequest) returns (List{{definition}}sResponse) {
-    option (google.api.http) = {
-      get: "{{parsed.basePath}}/{{definition|lower}}s"
-    };
-  }
-
-  rpc Get{{definition}}(Get{{definition}}Request) returns ({{definition}}) {
-    option (google.api.http) = {
-      get: "{{parsed.basePath}}/{{'{'+definition|lower}}s/*}"
-    };
-  }
-
-  rpc Create{{definition}}(Create{{definition}}Request) returns ({{definition}}) {
-    option (google.api.http) = {
-      post: "{{parsed.basePath}}/{{definition|lower}}s"
-      body: "{{definition|lower}}"
-    };
-  }
-
-  rpc Update{{definition}}(Update{{definition}}Request) returns ({{definition}}) {
-    option (google.api.http) = {
-      patch: "{{parsed.basePath}}/{{'{'+definition|lower}}s/*}"
-      body: "{{definition|lower}}"
-    };
-  }
-
-  rpc Delete{{definition}}(Delete{{definition}}Request) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "{{parsed.basePath}}/{{'{'+definition|lower}}s/*}"
-    };
-  }
-{% endfor -%}
-}
 {# messages #}
 {% for definition in parsed.definitions -%}
 {% set properties=parsed.definitions[definition].properties -%}
