@@ -1,6 +1,7 @@
 import argparse
 import jinja2
 
+
 from latch.parsing import constants as c
 from latch.parsing import parser
 
