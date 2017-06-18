@@ -8,7 +8,7 @@ def swagger_to_protobuf(filename):
   render_ctx = {}
   parsed = parser.load_from_file(filename)
 
-  templateLoader = jinja2.FileSystemLoader( searchpath="./")
+  templateLoader = jinja2.PackageLoader('latch', 'data')
   templateEnv = jinja2.Environment( loader=templateLoader )
   proto_template = "proto_template.proto"
   template = templateEnv.get_template(proto_template)
